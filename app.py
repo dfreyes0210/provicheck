@@ -5,6 +5,7 @@ from datetime import datetime, date
 import plotly.express as px
 
 DB = "provicheck.db"
+ARCHIVO_EXCEL = "data/PROVICHECK_Base_Datos.xlsx"
 
 # =====================
 # BASE DE DATOS
@@ -142,9 +143,9 @@ def auditar(usuario, accion, detalle):
 
 def datos_iniciales():
     if tabla("usuarios").empty:
-        sql("INSERT INTO usuarios(usuario, clave, nombre, perfil, estado) VALUES(?,?,?,?,?)",
+        sql("INSERT OR IGNORE INTO usuarios(usuario, clave, nombre, perfil, estado) VALUES(?,?,?,?,?)",
             ("admin", "1234", "Administrador PROVICHECK", "Administrador", "Activo"))
-        sql("INSERT INTO usuarios(usuario, clave, nombre, perfil, estado) VALUES(?,?,?,?,?)",
+        sql("INSERT OR IGNORE INTO usuarios(usuario, clave, nombre, perfil, estado) VALUES(?,?,?,?,?)",
             ("analista", "1234", "Analista Laboratorio", "Analista", "Activo"))
 
     if tabla("laboratorios").empty:
@@ -156,7 +157,7 @@ def datos_iniciales():
             ("LAB05", "Combustibles", "Responsable Combustibles", "Activo")
         ]
         for x in labs:
-            sql("INSERT INTO laboratorios(codigo,nombre,responsable,estado) VALUES(?,?,?,?)", x)
+            sql("INSERT OR IGNORE INTO laboratorios(codigo,nombre,responsable,estado) VALUES(?,?,?,?)", x)
 
     if tabla("equipos").empty:
         equipos = [
@@ -166,7 +167,7 @@ def datos_iniciales():
         ]
         for e in equipos:
             sql("""
-            INSERT INTO equipos(codigo,nombre,laboratorio,area,marca,modelo,serial,responsable,criticidad,estado,ultima_calibracion,proxima_calibracion)
+            INSERT OR IGNORE INTO equipos(codigo,nombre,laboratorio,area,marca,modelo,serial,responsable,criticidad,estado,ultima_calibracion,proxima_calibracion)
             VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
             """, e)
 
@@ -237,7 +238,8 @@ menu = st.sidebar.radio("Menú", [
     "Realizar chequeo",
     "Bitácora por equipo",
     "Dashboard",
-    "Auditoría"
+    "Auditoría",
+    "Administración"
 ])
 
 if st.sidebar.button("Cerrar sesión"):
@@ -471,3 +473,26 @@ elif menu == "Auditoría":
         st.dataframe(tabla("auditoria"), use_container_width=True)
     else:
         st.warning("Solo administrador puede ver auditoría.")
+
+elif menu == "Administración":
+
+    st.subheader("Administración PROVICHECK")
+
+    if perfil != "Administrador":
+        st.warning("Solo administradores.")
+        st.stop()
+
+    st.info("Importar información desde PROVICHECK_Base_Datos.xlsx")
+
+    if st.button("Importar Base Excel"):
+
+        equipos_excel = pd.read_excel(
+            ARCHIVO_EXCEL,
+            sheet_name="Equipos"
+        )
+
+        st.write("Equipos encontrados:", len(equipos_excel))
+
+        st.dataframe(equipos_excel.head())
+
+        st.success("Lectura de Excel exitosa.")
