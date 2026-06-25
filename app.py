@@ -491,8 +491,42 @@ elif menu == "Administración":
             sheet_name="Equipos"
         )
 
-        st.write("Equipos encontrados:", len(equipos_excel))
+        # Limpia nombres de columnas
+        equipos_excel.columns = equipos_excel.columns.str.strip()
 
-        st.dataframe(equipos_excel.head())
+        conn = sqlite3.connect("data/provicheck.db")
+        cursor = conn.cursor()
 
-        st.success("Lectura de Excel exitosa.")
+        # Borra equipos anteriores de prueba
+        cursor.execute("DELETE FROM equipos")
+
+        # Importa equipos reales desde Excel
+        for _, fila in equipos_excel.iterrows():
+            cursor.execute("""
+                INSERT INTO equipos (
+                    codigo,
+                    nombre,
+                    tipo,
+                    marca,
+                    modelo,
+                    serie,
+                    laboratorio,
+                    estado
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                str(fila["codigo"]),
+                str(fila["nombre"]),
+                str(fila["tipo"]),
+                str(fila["marca"]),
+                str(fila["modelo"]),
+                str(fila["serie"]),
+                str(fila["laboratorio"]),
+                str(fila["estado"])
+            ))
+
+        conn.commit()
+        conn.close()
+
+        st.success(f"Importación exitosa. Equipos cargados: {len(equipos_excel)}")
+        st.dataframe(equipos_excel)
