@@ -492,7 +492,9 @@ elif menu == "Administración":
         )
 
         equipos_excel.columns = equipos_excel.columns.str.strip()
-
+        st.write("Columnas encontradas en Excel:")
+        st.write(list(equipos_excel.columns))
+        st.stop()
         conn = sqlite3.connect("data/provicheck.db")
         cursor = conn.cursor()
 
