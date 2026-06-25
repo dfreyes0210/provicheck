@@ -494,7 +494,25 @@ elif menu == "Administración":
         equipos_excel.columns = equipos_excel.columns.str.strip()
 
         conn = sqlite3.connect("data/provicheck.db")
-        cursor = conn.cursor()
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS equipos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    codigo TEXT UNIQUE,
+    nombre TEXT,
+    laboratorio TEXT,
+    area TEXT,
+    marca TEXT,
+    modelo TEXT,
+    serial TEXT,
+    responsable TEXT,
+    criticidad TEXT,
+    estado TEXT,
+    ultima_calibracion TEXT,
+    proxima_calibracion TEXT
+)
+""")
 
         cursor.execute("DELETE FROM equipos")
 
