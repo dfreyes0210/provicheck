@@ -491,38 +491,43 @@ elif menu == "Administración":
             sheet_name="Equipos"
         )
 
-        # Limpia nombres de columnas
         equipos_excel.columns = equipos_excel.columns.str.strip()
 
         conn = sqlite3.connect("data/provicheck.db")
         cursor = conn.cursor()
 
-        # Borra equipos anteriores de prueba
         cursor.execute("DELETE FROM equipos")
 
-        # Importa equipos reales desde Excel
         for _, fila in equipos_excel.iterrows():
             cursor.execute("""
                 INSERT INTO equipos (
                     codigo,
                     nombre,
-                    tipo,
+                    laboratorio,
+                    area,
                     marca,
                     modelo,
-                    serie,
-                    laboratorio,
-                    estado
+                    serial,
+                    responsable,
+                    criticidad,
+                    estado,
+                    ultima_calibracion,
+                    proxima_calibracion
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 str(fila["codigo"]),
                 str(fila["nombre"]),
-                str(fila["tipo"]),
+                str(fila["laboratorio"]),
+                str(fila["area"]),
                 str(fila["marca"]),
                 str(fila["modelo"]),
-                str(fila["serie"]),
-                str(fila["laboratorio"]),
-                str(fila["estado"])
+                str(fila["serial"]),
+                str(fila["responsable"]),
+                str(fila["criticidad"]),
+                str(fila["estado"]),
+                str(fila["ultima_calibracion"]),
+                str(fila["proxima_calibracion"])
             ))
 
         conn.commit()
