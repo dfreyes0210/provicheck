@@ -486,70 +486,70 @@ elif menu == "Administración":
 
     if st.button("Importar Base Excel"):
 
-    equipos_excel = pd.read_excel(
-        ARCHIVO_EXCEL,
-        sheet_name="Equipos"
-    )
+        equipos_excel = pd.read_excel(
+            ARCHIVO_EXCEL,
+            sheet_name="Equipos"
+        )
 
-    equipos_excel.columns = equipos_excel.columns.str.strip()
+        equipos_excel.columns = equipos_excel.columns.str.strip()
 
-    conn = sqlite3.connect("data/provicheck.db")
-    cursor = conn.cursor()
+        conn = sqlite3.connect("data/provicheck.db")
+        cursor = conn.cursor()
 
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS equipos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        codigo TEXT UNIQUE,
-        nombre TEXT,
-        laboratorio TEXT,
-        area TEXT,
-        marca TEXT,
-        modelo TEXT,
-        serial TEXT,
-        responsable TEXT,
-        criticidad TEXT,
-        estado TEXT,
-        ultima_calibracion TEXT,
-        proxima_calibracion TEXT
-    )
-    """)
-
-    cursor.execute("DELETE FROM equipos")
-
-    for _, fila in equipos_excel.iterrows():
         cursor.execute("""
-            INSERT INTO equipos (
-                codigo,
-                nombre,
-                laboratorio,
-                area,
-                marca,
-                modelo,
-                serial,
-                responsable,
-                criticidad,
-                estado,
-                ultima_calibracion,
-                proxima_calibracion
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            str(fila["codigo"]),
-            str(fila["nombre"]),
-            str(fila["laboratorio"]),
-            str(fila["area"]),
-            str(fila["marca"]),
-            str(fila["modelo"]),
-            str(fila["serial"]),
-            str(fila["responsable"]),
-            str(fila["criticidad"]),
-            str(fila["estado"]),
-            str(fila["ultima_calibracion"]),
-            str(fila["proxima_calibracion"])
-        ))
+        CREATE TABLE IF NOT EXISTS equipos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            codigo TEXT UNIQUE,
+            nombre TEXT,
+            laboratorio TEXT,
+            area TEXT,
+            marca TEXT,
+            modelo TEXT,
+            serial TEXT,
+            responsable TEXT,
+            criticidad TEXT,
+            estado TEXT,
+            ultima_calibracion TEXT,
+            proxima_calibracion TEXT
+        )
+        """)
 
-    conn.commit()
-    conn.close()
+        cursor.execute("DELETE FROM equipos")
 
-    st.success(f"Importación exitosa. Equipos cargados: {len(equipos_excel)}")
-    st.dataframe(equipos_excel)
+        for _, fila in equipos_excel.iterrows():
+            cursor.execute("""
+                INSERT INTO equipos (
+                    codigo,
+                    nombre,
+                    laboratorio,
+                    area,
+                    marca,
+                    modelo,
+                    serial,
+                    responsable,
+                    criticidad,
+                    estado,
+                    ultima_calibracion,
+                    proxima_calibracion
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                str(fila["codigo"]),
+                str(fila["nombre"]),
+                str(fila["laboratorio"]),
+                str(fila["area"]),
+                str(fila["marca"]),
+                str(fila["modelo"]),
+                str(fila["serial"]),
+                str(fila["responsable"]),
+                str(fila["criticidad"]),
+                str(fila["estado"]),
+                str(fila["ultima_calibracion"]),
+                str(fila["proxima_calibracion"])
+            ))
+
+        conn.commit()
+        conn.close()
+
+        st.success(f"Importación exitosa. Equipos cargados: {len(equipos_excel)}")
+        st.dataframe(equipos_excel)
